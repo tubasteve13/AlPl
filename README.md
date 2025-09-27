@@ -18,4 +18,5 @@ Device is found on Amazon: https://www.amazon.com/dp/B0FQNNVV36?ref=ppx_yo2ov_dt
 
 Flashing is pretty straight forward. Get the file, put in your variables and plug in, no button pressing nothing just flash it and off to the races. The base yml is based off the S3 box but it's price point is $16.99 currently. I spent some time figuing out the pins(FML) and getting the LA to figure out what line did what and the start sequence of the screen.
 
-
+*** what currently is not tested: Battery pack charge status and if charging is controlled by the esp. I do know there are 2 gpio near the charge circuit that do go to the chip.
+**Not in this yml yet but have the info and confirmed tested/working: RGB LED
