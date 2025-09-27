@@ -3,7 +3,7 @@
 
 
 
-This is for the Xorigin aipi as seen below. 
+This is for the Xorigin aipi. The chip is an esp32-s3-16MB. I looked high and low to find info on the display, other than it using common controller driver it does work. 
 
 128x128 full RGB screen with white led.
 3 buttons on the board. 2 external that you can click on and one internal for GPIO0(dont need to flash.
