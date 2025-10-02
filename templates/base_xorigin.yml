@@ -97,7 +97,7 @@ binary_sensor:
       #  inverted: true
     filters:
       - delayed_on: 2000ms  
-      - delayed_off: 2000ms  
+      - delayed_off: 20ms  
       - invert:
     on_state:
       - script.execute: update_led
@@ -114,7 +114,7 @@ binary_sensor:
        
     filters:
       - delayed_on: 2000ms  
-      - delayed_off: 2000ms    
+      - delayed_off: 20ms    
       - invert:
     on_state:
       - script.execute: update_led
