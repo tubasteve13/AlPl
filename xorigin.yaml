@@ -118,9 +118,9 @@ binary_sensor:
         then:
           - switch.turn_off: timer_ringing
       - timing:
-          - ON for at least 10s
+          - ON for at least 5s
         then:
-          - button.press: factory_reset_btn
+          - button.press: restart_btn
   - platform: gpio
     id: btn_right
     name: "Button (GPIO42)"
@@ -133,8 +133,16 @@ binary_sensor:
     filters:
       - delayed_on: 20ms
       - delayed_off: 20ms           
-    on_press:
-      - switch.toggle: mute
+    on_multi_click:
+      - timing:
+          - ON for at least 50ms
+          - OFF for at least 50ms
+        then:
+          - switch.toggle: mute          
+      - timing:
+          - ON for at least 3s
+        then:
+          - switch.turn_on: g10   
 output:
   - platform: ledc
     pin: GPIO3
@@ -545,6 +553,12 @@ script:
             - lambda: id(voice_assistant_phase) = ${voice_assist_muted_phase_id};
 
 switch:
+  - platform: gpio
+    id: g10
+    name: "10"
+    pin:
+      number: GPIO10      #Battery pack enable, pulled high to boot
+      inverted: true
   - platform: gpio
     name: Speaker Enable
     pin: GPIO9
