@@ -42,19 +42,19 @@ esphome:
   min_version: 2025.5.0
   name_add_mac_suffix: true
   on_boot:
-    priority: 600
-    then:
-      - script.execute: draw_display
-      - delay: 30s
-      - if:
-          condition:
-            lambda: return id(init_in_progress);
-          then:
-            - lambda: id(init_in_progress) = false;
-            - script.execute: draw_display
-      - priority: -10
-        then:
-          - script.execute: update_led            
+    - priority: 600
+      then:
+        - script.execute: draw_display
+        - delay: 30s
+        - if:
+            condition:
+              lambda: return id(init_in_progress);
+            then:
+              - lambda: id(init_in_progress) = false;
+              - script.execute: draw_display
+    - priority: -10
+      then:
+        - script.execute: update_led           
 
 esp32:
   board: esp32-s3-devkitc-1
