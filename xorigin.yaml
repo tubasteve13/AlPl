@@ -52,9 +52,9 @@ esphome:
           then:
             - lambda: id(init_in_progress) = false;
             - script.execute: draw_display
-    - priority: -10
-      then:
-        - script.execute: update_led            
+      - priority: -10
+        then:
+          - script.execute: update_led            
 
 esp32:
   board: esp32-s3-devkitc-1
