@@ -52,6 +52,9 @@ esphome:
           then:
             - lambda: id(init_in_progress) = false;
             - script.execute: draw_display
+    - priority: -10
+      then:
+        - script.execute: update_led            
 
 esp32:
   board: esp32-s3-devkitc-1
@@ -103,6 +106,10 @@ button:
     id: factory_reset_btn
     internal: true
 
+  - platform: restart
+    id: restart_btn
+    name: "Device Restart"      
+
 binary_sensor:
   - platform: gpio
     pin:
@@ -124,15 +131,13 @@ binary_sensor:
   - platform: gpio
     id: btn_right
     name: "Button (GPIO42)"
+    internal: true
     pin:
       number: GPIO42
       mode:
         input: true
-        pullup: true   # keep line high at boot
-      inverted: true    # pressed (LOW) = ON
-    filters:
-      - delayed_on: 20ms
-      - delayed_off: 20ms           
+        pullup: true   
+      inverted: true    
     on_multi_click:
       - timing:
           - ON for at least 50ms
@@ -142,12 +147,60 @@ binary_sensor:
       - timing:
           - ON for at least 3s
         then:
-          - switch.turn_on: g10   
+          - switch.turn_on: g10
+
+  - platform: gpio
+    id: g21
+    name: "sat1-21--Charge"
+    internal: true
+    pin:
+      number: GPIO21
+      mode:
+        input: true
+        pullup: true
+      #  inverted: true
+    filters:
+      - delayed_on: 1000ms  
+      - delayed_off: 1000ms  
+      - invert:
+    on_state:
+      - script.execute: update_led
+
+  - platform: gpio
+    id: g47
+    name: "sat2-47--standby"
+    internal: true
+    pin:
+      number: GPIO47
+      mode:
+        input: true
+        pullup: true  
+       
+    filters:
+      - delayed_on: 300ms  
+      - delayed_off: 300ms    
+      - invert:
+    on_state:
+      - script.execute: update_led
+
+  - platform: gpio
+    id: g8
+    name: "gpio8"
+    internal: true
+    pin:
+      number: GPIO8
+      mode:
+        input: true
+        pullup: true  
+    on_state:
+      - script.execute: update_led
 output:
   - platform: ledc
     pin: GPIO3
     id: backlight_output
-
+  # - platform: gpio
+  #   id: pa_ctrl
+  #   pin: GPIO9
 
 light:
   - platform: monochromatic
@@ -158,6 +211,49 @@ light:
     output: backlight_output
     restore_mode: RESTORE_DEFAULT_ON
     default_transition_length: 250ms
+
+  - platform: esp32_rmt_led_strip
+    name: "LED-rgb"
+    id: led_rgb
+    pin: GPIO46
+    num_leds: 1
+    chipset: WS2812
+    rgb_order: GRB
+    default_transition_length: 0s
+    restore_mode: RESTORE_DEFAULT_OFF
+    effects:
+      - pulse:
+          name: "Slow Pulse"
+          transition_length: 250ms
+          update_interval: 250ms
+          min_brightness: 50%
+          max_brightness: 100%
+      - pulse:
+          name: "Fast Pulse"
+          transition_length: 100ms
+          update_interval: 100ms
+          min_brightness: 50%
+          max_brightness: 100%
+
+      - addressable_lambda:
+          name: "RGB Cycle"
+          update_interval: 10ms   # adjust speed here (slower = higher ms)
+          lambda: |-
+            static uint8_t hue = 0;
+            it[0] = ESPHSVColor(hue, 255, 255);  // full-bright rainbow
+            hue += 5;  // step size, smaller = slower cycle
+
+      # Step between
+      - addressable_lambda:
+          name: "Red / White / Blue"
+          update_interval: 200ms   # hold each color for 2s
+          lambda: |-
+            static uint8_t step = 0;
+            if (step == 0)      it[0] = ESPColor(255, 0, 0);     // Red
+            else if (step == 1) it[0] = ESPColor(255, 255, 255); // White
+            else                it[0] = ESPColor(0, 0, 255);     // Blue
+            step = (step + 1) % 3;      
+    
 
 i2c:
   scl: GPIO4
@@ -245,10 +341,36 @@ media_player:
 
 micro_wake_word:
   id: mww
+  # Optional, allows wake-word even if VA isn't running
+  stop_after_detection: false
+
+  # Voice Activity Detection (helps avoid non-speech triggers)
+  vad:
+    # Default model from ESPHome repo
+    model: github://esphome/micro-wake-word-models/models/v2/vad.json
+    # Lower = more permissive; helps avoid missing the initial “h” in "hey"
+    probability_cutoff: 0.20
+    sliding_window_size: 5
+
   models:
-    - okay_nabu
-    - hey_mycroft
-    - hey_jarvis
+    # OK Nabu: leave near default (robust already)
+    - id: ok_nabu
+      model: okay_nabu
+      probability_cutoff: 0.95         # keep strict to avoid false wakes
+      sliding_window_size: 5
+
+    # Hey Mycroft: moderate sensitivity
+    - id: hey_mycroft
+      model: hey_mycroft
+      probability_cutoff: 0.92
+      sliding_window_size: 5
+
+    # Hey Jarvis: make more sensitive so it fires reliably
+    - id: hey_jarvis
+      model: hey_jarvis
+      probability_cutoff: 0.88         # lower = more sensitive
+      sliding_window_size: 4           # a touch faster to catch the leading “h”
+
   on_wake_word_detected:
     - voice_assistant.start:
         wake_word: !lambda return wake_word;
@@ -258,10 +380,18 @@ voice_assistant:
   microphone: box_mic
   media_player: speaker_media_player
   micro_wake_word: mww
-  noise_suppression_level: 2
+  noise_suppression_level: 1
   auto_gain: 31dBFS
   volume_multiplier: 2.0
   on_listening:
+    - light.turn_on:
+        id: led
+    - light.turn_on:
+        id: led_rgb
+        blue: 100%
+        red: 0%
+        green: 0%
+        effect: "Slow Pulse"  
     - lambda: id(voice_assistant_phase) = ${voice_assist_listening_phase_id};
     - text_sensor.template.publish:
         id: text_request
@@ -271,6 +401,12 @@ voice_assistant:
         state: "..."
     - script.execute: draw_display
   on_stt_vad_end:
+    - light.turn_on:
+        id: led_rgb
+        blue: 100%
+        red: 0%
+        green: 0%
+        effect: "RGB Cycle"  
     - lambda: id(voice_assistant_phase) = ${voice_assist_thinking_phase_id};
     - script.execute: draw_display
   on_stt_end:
@@ -279,6 +415,7 @@ voice_assistant:
         state: !lambda return x;
     - script.execute: draw_display
   on_tts_start:
+
     - text_sensor.template.publish:
         id: text_response
         state: !lambda return x;
@@ -287,6 +424,13 @@ voice_assistant:
     - script.execute: draw_display
    # - output.turn_on: pa_ctrl
   on_end:
+    - light.turn_on:
+        id: led_rgb
+        blue: 0%
+        red: 0%
+        green: 100%
+        brightness: 100%
+        effect: "Fast Pulse"    
     # Wait a short amount of time to see if an announcement starts
     - wait_until:
         condition:
@@ -307,7 +451,7 @@ voice_assistant:
           - lambda: id(va).set_use_wake_word(false);
          # - output.turn_off: pa_ctrl 
             # mute amp to release I²S
-          - delay: 500ms
+          - delay: 250ms
           - micro_wake_word.start:
     - script.execute: set_idle_or_mute_phase
     - script.execute: draw_display
@@ -318,7 +462,17 @@ voice_assistant:
     - text_sensor.template.publish:
         id: text_response
         state: ""
+    - script.execute: reset_led
   on_error:
+    - light.turn_on:
+        id: led_rgb
+        blue: 0%
+        red: 100%
+        green: 0%
+        brightness: 100%
+        effect: none
+    - delay: 2s
+    - script.execute: reset_led  
     - if:
         condition:
           lambda: return !id(init_in_progress);
@@ -339,6 +493,8 @@ voice_assistant:
     - script.execute: start_wake_word
     - script.execute: set_idle_or_mute_phase
     - script.execute: draw_display
+    - script.execute: reset_led  
+    - script.execute: update_led
   on_client_disconnected:
     - script.execute: stop_wake_word
     - lambda: id(voice_assistant_phase) = ${voice_assist_not_ready_phase_id};
@@ -352,6 +508,14 @@ voice_assistant:
   on_timer_tick:
     - script.execute: draw_display
   on_timer_finished:
+    - light.turn_on:
+        id: led_rgb
+        red: 0%
+        green: 100%
+        blue: 0%
+        brightness: 100%
+        effect: "Fast Pulse"
+    - light.turn_off: led_rgb  
     - switch.turn_on: timer_ringing
     - wait_until:
         media_player.is_announcing:
@@ -542,6 +706,9 @@ script:
           then:
             - micro_wake_word.stop:
   # Set the voice assistant phase to idle or muted, depending on if the software mute switch is activated
+  - id: reset_led
+    then:
+      - light.turn_off: led_rgb  
   - id: set_idle_or_mute_phase
     then:
       - if:
@@ -552,13 +719,63 @@ script:
           else:
             - lambda: id(voice_assistant_phase) = ${voice_assist_muted_phase_id};
 
+# --- Logic to set the LED ---
+  - id: update_led
+    mode: queued
+    then:
+      - lambda: |-
+          const bool s8  = id(g8).state;
+          const bool s21 = id(g21).state;
+          const bool s47 = id(g47).state;
+
+          // Truth table:
+          // 1) 8+21 ON, 47 OFF  -> RED
+          // 2) 8+47 ON, 21 OFF  -> GREEN
+          // 3) 8+21+47 ON       -> OFF
+          // 4) all three OFF    -> OFF
+          // everything else     -> OFF
+
+          auto off = [&](){
+            id(led_rgb).turn_off().perform();
+            
+          };
+
+          if (!s8 && !s21 && !s47) {
+            id(power_state_text).publish_state("Discharging(on battery)");
+            off(); return;
+          }
+          if (s8 && s21 && !s47) {
+            auto c = id(led_rgb).turn_on();
+            c.set_rgb(1.0, 0.0, 0.0);  // red
+            c.perform();
+            id(power_state_text).publish_state("Charging");
+            return;
+          }
+          if (s8 && !s21 && s47) {
+            auto c = id(led_rgb).turn_on();
+            c.set_rgb(0.0, 1.0, 0.0);  // green
+            c.perform();
+            id(power_state_text).publish_state("Charged");
+            return;
+          }
+          if (s8 && s21 && s47) {
+            id(power_state_text).publish_state("On USB power ONLY");
+            off(); return;
+          }
+
+          // default
+          off();
+          
+     
+
 switch:
   - platform: gpio
     id: g10
-    name: "10"
+    name: "Remote turn-off(battery only)"
     pin:
-      number: GPIO10      #Battery pack enable, pulled high to boot
+      number: GPIO10       # pick any free GPIO
       inverted: true
+      
   - platform: gpio
     name: Speaker Enable
     pin: GPIO9
@@ -574,11 +791,13 @@ switch:
     entity_category: config
     on_turn_off:
       - microphone.unmute:
+      - light.turn_off: led_rgb
       - light.turn_on: led
       - lambda: id(voice_assistant_phase) = ${voice_assist_idle_phase_id};
       - script.execute: draw_display
     on_turn_on:
       - microphone.mute:
+      - light.turn_off: led_rgb
       - light.turn_off: led
       - lambda: id(voice_assistant_phase) = ${voice_assist_muted_phase_id};
       - script.execute: draw_display
@@ -588,7 +807,6 @@ switch:
     internal: true
     restore_mode: ALWAYS_OFF
     on_turn_off:
-     # - output.turn_off: pa_ctrl
       # Turn off the repeat mode and disable the pause between playlist items
       - lambda: |-
               id(speaker_media_player)
@@ -601,7 +819,6 @@ switch:
       - media_player.stop:
           announcement: true
     on_turn_on:
-     # - output.turn_on: pa_ctrl
       # Turn on the repeat mode and pause for 1000 ms between playlist items/repeats
       - lambda: |-
             id(speaker_media_player)
@@ -776,6 +993,11 @@ text_sensor:
           std::string truncated = esphome::str_truncate(name.c_str(),31);
           id(text_response).state = (truncated+"...").c_str();
         }
+        
+  - platform: template
+    id: power_state_text
+    name: "Power State"
+    icon: mdi:power-plug
 
 color:
   - id: idle_color
@@ -798,8 +1020,8 @@ color:
 spi:
   id: lcd_spi
   interface: hardware
-  clk_pin: GPIO16        # SCLK
-  mosi_pin: GPIO17       # MOSI
+  clk_pin: GPIO16       
+  mosi_pin: GPIO17
 
 display:
   - platform: ili9xxx
@@ -807,9 +1029,9 @@ display:
     model: st7789v
     invert_colors: false
     data_rate: 40MHz
-    cs_pin: GPIO15       # CS
-    dc_pin: GPIO7        # D/C
-    reset_pin: GPIO18    # RST
+    cs_pin: GPIO15       
+    dc_pin: GPIO7        
+    reset_pin: GPIO18    
     spi_mode: 3
     update_interval: never
     dimensions:
@@ -819,14 +1041,15 @@ display:
         offset_height: 0
     color_order: bgr
     rotation: 90
+    #show_test_card: true   
     init_sequence:
       - [0x01]                
       - [0x11]                
       - [0x91, 0x4F, 0x42, 0x18] 
-      - [0xD1, 0x00, 0x07, 0x10] 
+      - [0xD1, 0x00, 0x07, 0x10]   
       - [0x3A, 0x55]          
       - [0x36, 0x08]          
-      - [0x29]                	
+      - [0x29]                
     pages:
       - id: idle_page
         lambda: |-
