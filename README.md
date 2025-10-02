@@ -40,7 +40,7 @@ Flashing is pretty straight forward. Get the file, put in your variables and plu
 
 Currently compared to the s3-box the text on screen was running off so I removed that for now.
 
-# ⚠️ Disclaimer (Full)
+# ⚠️ Disclaimer
 
 Educational Use Only. The code, documentation, and examples in this repository are provided for educational and research purposes. They may involve firmware modification and battery-charging configurations that are experimental and not certified, endorsed, tested, or warranted by me or by any manufacturer.
 
