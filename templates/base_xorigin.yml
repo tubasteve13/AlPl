@@ -93,11 +93,11 @@ binary_sensor:
       number: GPIO21
       mode:
         input: true
-        pullup: true
+        pulldown: true
       #  inverted: true
     filters:
-      - delayed_on: 1000ms  
-      - delayed_off: 1000ms  
+      - delayed_on: 2000ms  
+      - delayed_off: 2000ms  
       - invert:
     on_state:
       - script.execute: update_led
@@ -110,11 +110,11 @@ binary_sensor:
       number: GPIO47
       mode:
         input: true
-        pullup: true  
+        pulldown: true  
        
     filters:
-      - delayed_on: 300ms  
-      - delayed_off: 300ms    
+      - delayed_on: 2000ms  
+      - delayed_off: 2000ms    
       - invert:
     on_state:
       - script.execute: update_led
@@ -237,7 +237,7 @@ media_player:
       speaker: box_speaker
       format: FLAC
       sample_rate: 48000
-      num_channels: 1  # S3 only has one output channel
+      num_channels: 1  # S3 Box only has one output channel
     files:
       - id: timer_finished_sound
         file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/timer_finished.flac
@@ -318,6 +318,13 @@ micro_wake_word:
     - voice_assistant.start:
         wake_word: !lambda return wake_word;
   
+  # models:
+    # - okay_nabu
+    # - hey_mycroft
+    # - hey_jarvis
+  # on_wake_word_detected:
+    # - voice_assistant.start:
+        # wake_word: !lambda return wake_word;
 
 voice_assistant:
   id: va
@@ -663,7 +670,7 @@ script:
           else:
             - lambda: id(voice_assistant_phase) = ${voice_assist_muted_phase_id};
 
-# --- Logic to set the LED --- #
+# --- Logic to set the LED ---
   - id: update_led
     mode: queued
     then:
@@ -717,7 +724,7 @@ switch:
     id: g10
     name: "Remote turn-off(battery only)"
     pin:
-      number: GPIO10       
+      number: GPIO10       # pick any free GPIO
       inverted: true
       
   - platform: gpio
@@ -1040,4 +1047,13 @@ display:
           id(draw_timer_timeline).execute();
           id(draw_active_timer_widget).execute();
 
+# sensor:
+  # - platform: adc
+    # pin: GPIO8
+    # name: "8"
+    # update_interval: 60s
     
+  # - platform: adc
+    # pin: GPIO2
+    # name: "2"
+    # update_interval: 60s       
