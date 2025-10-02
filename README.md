@@ -20,13 +20,12 @@ Flashing is pretty straight forward. Get the file, put in your variables and plu
 
 Left button is used for silencing alarm, right one is to mute/turn off display. Currently compared to the s3-box the text on screen was running off so I removed that for now.
 
-Buttons of opperation:
-buttons are multi assigned
-# (**Left button:**) 
+# Buttons of opperation: Buttons are multi assigned
+### (**Left button:**) 
    - Momantary silences alarm
    - 10 seconds held reboots device
    - **If on battery pack can be used to cold start the device(turn on)
-# (**Right button:**)
+### (**Right button:**)
    - momentary mutes the mic and turns screen/led off **led will change to on if battery is connected after for finished charging.
    - 3 second hold when on battery pack will turn off the device.
 
