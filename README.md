@@ -3,6 +3,12 @@
 
 Update 10-2-2025
 
+#Templated install
+   - Download the templates folder and put in the esphome folder that is in the config directory.
+   - put the main.yml into the base esphome folder.
+   - everything that needs changes for your setup is "change-me"
+   - Easiest way is to use the add device, create but dont flash. paste the 'main.yml below and copy over your settings deleting everything above once you've added.
+
 This is for the Xorigin aipi. The chip is an esp32-s3-16MB. I looked high and low to find info on the display, other than it using common controller driver it does work. 
 
 128x128 full RGB screen with white led.
