@@ -3,7 +3,7 @@
 
 Update 10-2-2025
 
-#Templated install
+# Templated install
    - Download the templates folder and put in the esphome folder that is in the config directory.
    - put the main.yml into the base esphome folder.
    - everything that needs changes for your setup is "change-me"
