@@ -9,6 +9,16 @@ Update 10-2-2025
    - everything that needs changes for your setup is "change-me"
    - Easiest way is to use the add device, create but dont flash. paste the 'main.yml below and copy over your settings deleting everything above once you've added.
 
+# Buttons of opperation: Buttons are multi assigned
+### (**Left button:**) 
+   - Momantary silences alarm
+   - 10 seconds held reboots device
+   - **If on battery pack can be used to cold start the device(turn on)
+### (**Right button:**)
+   - momentary mutes the mic and turns screen/led off **led will change to on if battery is connected after for finished charging.
+
+
+# Some of the insides and how it works:
 This is for the Xorigin aipi. The chip is an esp32-s3-16MB. I looked high and low to find info on the display, other than it using common controller driver it does work. 
 
 128x128 full RGB screen with white led.
@@ -26,13 +36,7 @@ Flashing is pretty straight forward. Get the file, put in your variables and plu
 
 Currently compared to the s3-box the text on screen was running off so I removed that for now.
 
-# Buttons of opperation: Buttons are multi assigned
-### (**Left button:**) 
-   - Momantary silences alarm
-   - 10 seconds held reboots device
-   - **If on battery pack can be used to cold start the device(turn on)
-### (**Right button:**)
-   - momentary mutes the mic and turns screen/led off **led will change to on if battery is connected after for finished charging.
+
    - 3 second hold when on battery pack will turn off the device.
 
 
