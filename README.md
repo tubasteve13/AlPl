@@ -40,6 +40,22 @@ Flashing is pretty straight forward. Get the file, put in your variables and plu
 
 Currently compared to the s3-box the text on screen was running off so I removed that for now.
 
+# ⚠️ Disclaimer (Full)
+
+Educational Use Only. The code, documentation, and examples in this repository are provided for educational and research purposes. They may involve firmware modification and battery-charging configurations that are experimental and not certified, endorsed, tested, or warranted by me or by any manufacturer.
+
+No Warranty. The project is provided “AS IS” and WITHOUT ANY WARRANTY—express or implied—including but not limited to merchantability, fitness for a particular purpose, and non-infringement. I make no representation that the instructions or code are safe, correct, or compliant with any standard.
+
+Assumption of Risk. You assume all risks associated with using this project. Firmware changes and hardware work can brick devices, void warranties, cause data loss, property damage, electric shock, overheating, fire, or injury. Lithium-based batteries are hazardous if misused; improper charging can cause fire or explosion.
+
+No Certification of Battery Charging. Any battery-charging information herein is not validated or certified by me. You are responsible for ensuring proper protection circuitry, safe charging profiles, thermal management, and compliance with relevant standards (e.g., UL/IEC/CE) and local regulations.
+
+Limitation of Liability. In no event shall I be liable for any claims, damages, losses, or other liability—whether in contract, tort, or otherwise—arising from, out of, or in connection with this project or its use.
+
+Indemnification. By using this repository, you agree to indemnify and hold me harmless from any claims or damages resulting from your use, misuse, distribution, or modification of the code or instructions.
+
+Compliance & Qualifications. Only qualified individuals should attempt firmware or hardware work. You are responsible for complying with all applicable laws, regulations, export controls, and safety standards in your jurisdiction. I am not affiliated with nor endorsed by any product or brand mentioned.
+
 
 
 
