@@ -18,7 +18,7 @@ Device is found on Amazon: https://www.amazon.com/dp/B0FQNNVV36?ref=ppx_yo2ov_dt
 
 Flashing is pretty straight forward. Get the file, put in your variables and plug in, no button pressing nothing just flash it and off to the races. The base yml is based off the S3 box but it's price point is $16.99 currently. I spent some time figuing out the pins(FML) and getting the LA to figure out what line did what and the start sequence of the screen.
 
-Left button is used for silencing alarm, right one is to mute/turn off display. Currently compared to the s3-box the text on screen was running off so I removed that for now.
+Currently compared to the s3-box the text on screen was running off so I removed that for now.
 
 # Buttons of opperation: Buttons are multi assigned
 ### (**Left button:**) 
