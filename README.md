@@ -22,11 +22,11 @@ Left button is used for silencing alarm, right one is to mute/turn off display. 
 
 Buttons of opperation:
 buttons are multi assigned
-#(**bold**)Left button: 
+# (**Left button:**) 
    - Momantary silences alarm
    - 10 seconds held reboots device
    - **If on battery pack can be used to cold start the device(turn on)
-#(**bold**)Right button:
+# (**Right button:**)
    - momentary mutes the mic and turns screen/led off **led will change to on if battery is connected after for finished charging.
    - 3 second hold when on battery pack will turn off the device.
 
