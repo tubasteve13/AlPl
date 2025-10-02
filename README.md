@@ -3,6 +3,9 @@
 
 Update 10-2-2025
 
+# Device is found on Amazon: 
+   - https://www.amazon.com/dp/B0FQNNVV36?ref=ppx_yo2ov_dt_b_fed_asin_title&th=1
+
 # Templated install
    - Download the templates folder and put in the esphome folder that is in the config directory.
    - put the main.yml into the base esphome folder.
@@ -16,6 +19,7 @@ Update 10-2-2025
    - **If on battery pack can be used to cold start the device(turn on)
 ### (**Right button:**)
    - momentary mutes the mic and turns screen/led off **led will change to on if battery is connected after for finished charging.
+   - 3 second hold when on battery pack will turn off the device. 
 
 
 # Some of the insides and how it works:
@@ -30,13 +34,13 @@ RGB Led that can be tiggered during listening  or whatever you want.
 
 The device has ability to have battery pack to have it wireless. There is no logic in the battery attachment and could be run from a 18650 or other 4.2v lixx battery
 
-Device is found on Amazon: https://www.amazon.com/dp/B0FQNNVV36?ref=ppx_yo2ov_dt_b_fed_asin_title&th=1
+
 
 Flashing is pretty straight forward. Get the file, put in your variables and plug in, no button pressing nothing just flash it and off to the races. The base yml is based off the S3 box but it's price point is $16.99 currently. I spent some time figuing out the pins(FML) and getting the LA to figure out what line did what and the start sequence of the screen.
 
 Currently compared to the s3-box the text on screen was running off so I removed that for now.
 
 
-   - 3 second hold when on battery pack will turn off the device.
+
 
 
